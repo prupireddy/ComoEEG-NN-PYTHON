@@ -1,1 +1,0 @@
-# ComoEEG-NN-PYTHON
