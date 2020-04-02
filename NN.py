@@ -25,6 +25,15 @@ storage = "D:\ComoEEG\Tyler Data\Patient " + patientNumber
 # data = my_tiff_loader(storage)
 trans = transforms.ToTensor()
 Data = datasets.ImageFolder(root = storage, loader = my_tiff_loader,transform = trans)
-DataSet = DataLoader(Data, batch_size = 2, shuffle = False)
-for idx, (x,y) in enumerate(Data):
-    print(x.shape)
+
+validation_split = 0.8
+dataset_size = len(Data)
+indices = list(range(dataset_size))
+split = int(np.floor(validation_split*dataset_size))
+batch_size = dataset_size - split 
+np.random.shuffle(indices)
+train_indices, valid_indices = indices[split:], indices[:split]
+train_sampler = SubsetRandomSampler(train_indices)
+valid_sampler = SubsetRandomSampler(valid_indices)
+TrainData = DataLoader(Data, batch_size = batch_size, shuffle = True, sampler = train_sampler)
+TestData = DataLoader(Data, batch_size, shuffle = True, sampler = valid_sampler)
