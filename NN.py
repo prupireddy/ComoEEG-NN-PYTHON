@@ -9,6 +9,8 @@ from torch.utils.data.sampler import SubsetRandomSampler
 from torch.utils.data import DataLoader 
 #import matplotlib.pyplot as plt
 
+n_chan = 22
+
 def my_tiff_loader(filename):
     original = tifffile.imread(filename)
     C,H,W = original.shape
@@ -28,7 +30,7 @@ storage = "D:\ComoEEG\Tyler Data\Patient " + patientNumber
 trans = transforms.ToTensor()
 Data = datasets.ImageFolder(root = storage, loader = my_tiff_loader,transform = trans)
 
-train_split = 0.8
+train_split = 0.7
 dataset_size = len(Data)
 indices = list(range(dataset_size))
 split = int(np.floor(train_split*dataset_size))
@@ -46,13 +48,13 @@ class ConvNet(nn.Module):
     def __init__(self):
         super(ConvNet,self).__init__()
         self.layer1 = nn.Sequential(
-            nn.Conv2d(1,32,kernel_size = 5, stride = 1),
+            nn.Conv2d(n_chan,8,kernel_size = 3, stride = 1, padding = 'same'),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size = 2, stride = 2))
         self.layer1 = nn.Sequential(
-            nn.Conv2d(32,64,kernel_size = 5, stride = 1),
+            nn.Conv2d(8,16,kernel_size = 5, stride = 1),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size = 2, stride = 2))
+            nn.MaxPool2d(kernel_size = 3, stride = 2))
         self.drop_out - nn.Dropout()
         self.fc1 = nn.Linear(7*7*64, 1000)
         self.fc2 = nn.Linear(1000,10)
@@ -67,7 +69,7 @@ class ConvNet(nn.Module):
 
 num_epochs = 100
 num_classes = 2
-learning_rate = .01
+learning_rate = .001
 
 model = ConvNet()
 
