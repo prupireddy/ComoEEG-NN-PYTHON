@@ -50,21 +50,23 @@ class ConvNet(nn.Module):
         self.layer1 = nn.Sequential(
             nn.Conv2d(n_chan,8,kernel_size = 3, stride = 1, padding = 'same'),
             nn.ReLU(),
+            nn.BatchNorm2d(8, eps = 1e-05),
             nn.MaxPool2d(kernel_size = 2, stride = 2))
         self.layer1 = nn.Sequential(
             nn.Conv2d(8,16,kernel_size = 5, stride = 1),
             nn.ReLU(),
+            nn.BatchNorm2d(8, eps = 1e-05),
             nn.MaxPool2d(kernel_size = 2, stride = 2))
-        self.drop_out - nn.Dropout()
-        self.fc1 = nn.Linear(61*1*16, 400) #Formula for calculating post-layer shape: ceil((input+2*padding-kernelsize)/stride length)
-        self.fc2 = nn.Linear(400,10)
+        self.classifier = nn.Sequential(
+            nn.Dropout(p=0.2),
+            nn.Linear(61*1*16, 400),#Formula for calculating post-layer shape: ceil((input+2*padding-kernelsize)/stride length)
+            nn.Dropout(p=0.2),
+            nn.Linear(400,10))
     def forward(self,x):
         out = self.layer1(x)
         out = self.layer2(out)
         out = out.reshape(out.size(0),-1)
-        out = self.drop_out(out)
-        out = self.fc1(out)
-        out = self.fc2(out)
+        out = self.classifier(out)
         return out
 
 num_epochs = 100
@@ -76,6 +78,7 @@ model = ConvNet()
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr = learning_rate)
 
+model.train()
 total_step = len(TrainData)
 for epoch in range(num_epochs):
     for i, (images,labels) in enumerate(TrainData):
