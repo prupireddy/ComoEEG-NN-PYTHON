@@ -43,7 +43,7 @@ TrainData = DataLoader(Data, batch_size = size, sampler = train_sampler)
 TestData = DataLoader(Data, batch_size = size, sampler = valid_sampler)
 # for idx, (x,y) in enumerate(TrainData):
 #     print(x.shape)
-    
+
 class ConvNet(nn.Module):
     def __init__(self):
         super(ConvNet,self).__init__()
@@ -54,10 +54,10 @@ class ConvNet(nn.Module):
         self.layer1 = nn.Sequential(
             nn.Conv2d(8,16,kernel_size = 5, stride = 1),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size = 3, stride = 2))
+            nn.MaxPool2d(kernel_size = 2, stride = 2))
         self.drop_out - nn.Dropout()
-        self.fc1 = nn.Linear(7*7*64, 1000)
-        self.fc2 = nn.Linear(1000,10)
+        self.fc1 = nn.Linear(61*1*16, 400) #Formula for calculating post-layer shape: ceil((input+2*padding-kernelsize)/stride length)
+        self.fc2 = nn.Linear(400,10)
     def forward(self,x):
         out = self.layer1(x)
         out = self.layer2(out)
