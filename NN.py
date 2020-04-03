@@ -1,12 +1,13 @@
 import tifffile
+import torch
 import torch.nn as nn
-import os
+#import os
 import numpy as np
 from torchvision import datasets
 from torchvision import transforms
 from torch.utils.data.sampler import SubsetRandomSampler
 from torch.utils.data import DataLoader 
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 
 def my_tiff_loader(filename):
     original = tifffile.imread(filename)
@@ -19,6 +20,7 @@ def my_tiff_loader(filename):
 patientNumber = 10
 patientNumber = str(patientNumber)
 storage = "D:\ComoEEG\Tyler Data\Patient " + patientNumber 
+#Single Data Point Testing:
 # storage = "D:\ComoEEG\Tyler Data\Patient 10\ictal"
 # os.chdir(storage)
 # storage = storage + "\P10_1.TIFF"
@@ -37,8 +39,8 @@ train_sampler = SubsetRandomSampler(train_indices)
 valid_sampler = SubsetRandomSampler(valid_indices)
 TrainData = DataLoader(Data, batch_size = size, sampler = train_sampler)
 TestData = DataLoader(Data, batch_size = size, sampler = valid_sampler)
-for idx, (x,y) in enumerate(TrainData):
-    print(x.shape)
+# for idx, (x,y) in enumerate(TrainData):
+#     print(x.shape)
     
 class ConvNet(nn.Module):
     def __init__(self):
@@ -83,9 +85,11 @@ for epoch in range(num_epochs):
 
 model.eval()
 with torch.no_grad():
-    for images,labels in test_loader:
+    correct = 0
+    total = 0
+    for images,labels in TestData:
         outputs = model(images)
-        _,predicted = torch.max(outputs.data,1)
+        _,predicted = max(outputs.data,1)
         total += labels.size(0)
         correct += (predicted == labels).sum().item()
 
