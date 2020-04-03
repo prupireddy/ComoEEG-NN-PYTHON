@@ -18,7 +18,7 @@ def my_tiff_loader(filename):
     for i in range(C):
         final[:,:,i] = original[i,:,:]
     return final
-    
+
 patientNumber = 10
 patientNumber = str(patientNumber)
 storage = "D:\ComoEEG\Tyler Data\Patient " + patientNumber 
@@ -30,7 +30,7 @@ storage = "D:\ComoEEG\Tyler Data\Patient " + patientNumber
 trans = transforms.ToTensor()
 Data = datasets.ImageFolder(root = storage, loader = my_tiff_loader,transform = trans)
 
-train_split = 0.7
+train_split = 0.75
 dataset_size = len(Data)
 indices = list(range(dataset_size))
 split = int(np.floor(train_split*dataset_size))
