@@ -1,7 +1,7 @@
 import tifffile
 import torch
 import torch.nn as nn
-#import os
+# import os
 import numpy as np
 from torchvision import datasets
 from torchvision import transforms
@@ -22,7 +22,7 @@ def my_tiff_loader(filename):
 patientNumber = 10
 patientNumber = str(patientNumber)
 storage = "D:\ComoEEG\Tyler Data\Patient " + patientNumber 
-#Single Data Point Testing:
+# #Single Data Point Testing:
 # storage = "D:\ComoEEG\Tyler Data\Patient 10\ictal"
 # os.chdir(storage)
 # storage = storage + "\P10_1.TIFF"
@@ -37,10 +37,29 @@ split = int(np.floor(train_split*dataset_size))
 size = dataset_size - split 
 np.random.shuffle(indices)
 train_indices, valid_indices = indices[:split], indices[split:]
+
+mu_matrix = np.zeros((n_chan, len(train_indices)))
+std_matrix = np.zeros((n_chan, len(train_indices)))
+counter = 0
+for index in train_indices:
+    x,y = Data[index]
+    x_np = x.numpy()
+    mu_vector = np.mean(x_np, axis = (1,2))
+    std_vector = np.std(x_np, axis = (1,2))
+    mu_matrix[:,counter] = mu_vector
+    std_matrix[:,counter] = std_vector
+    counter = counter + 1
+pop_mean = np.mean(mu_matrix, axis = 1)
+pop_std = np.mean(std_matrix, axis = 1)
+
+transNorm = transforms.Compose([transforms.ToTensor(),
+                                transforms.Normalize(mean = pop_mean, std = pop_std)])
+NormalizedData = datasets.ImageFolder(root = storage, loader = my_tiff_loader, transform = transNorm)
+
 train_sampler = SubsetRandomSampler(train_indices)
 valid_sampler = SubsetRandomSampler(valid_indices)
-TrainData = DataLoader(Data, batch_size = size, sampler = train_sampler)
-TestData = DataLoader(Data, batch_size = size, sampler = valid_sampler)
+TrainData = DataLoader(NormalizedData, batch_size = size, sampler = train_sampler)
+TestData = DataLoader(NormalizedData, batch_size = size, sampler = valid_sampler)
 # for idx, (x,y) in enumerate(TrainData):
 #     print(x.shape)
 
