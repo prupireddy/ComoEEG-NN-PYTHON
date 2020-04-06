@@ -78,9 +78,9 @@ class ConvNet(nn.Module):
             nn.MaxPool2d(kernel_size = 2, stride = 2))
         self.classifier = nn.Sequential(
             nn.Dropout(p=0.2),
-            nn.Linear(61*1*16, 400),#Formula for calculating post-layer shape: ceil((input+2*padding-kernelsize)/stride length)
+            nn.Linear(61*1*16, 50),#Formula for calculating post-layer shape: ceil((input+2*padding-kernelsize)/stride length)
             nn.Dropout(p=0.2),
-            nn.Linear(400,10))
+            nn.Linear(50,2))
     def forward(self,x):
         out = self.layer1(x)
         out = self.layer2(out)
