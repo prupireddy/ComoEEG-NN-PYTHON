@@ -99,6 +99,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr = learning_rate)
 
 model.train()
 total_step = len(TrainData)
+acc_list = []
 for epoch in range(num_epochs):
     for i, (images,labels) in enumerate(TrainData):
         outputs = model(images)
@@ -106,14 +107,20 @@ for epoch in range(num_epochs):
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
+        total = labels.size(0)
+        _,predicted = torch.max(outputs.data, axis = 1)
+        correct = (predicted == labels).sum().item()
+        acc_list.append(correct/total)
 
 model.eval()
 with torch.no_grad():
-    correct = 0
-    total = 0
+    correctTest = 0
+    totalTest = 0
     for images,labels in TestData:
         outputs = model(images)
         _,predicted = max(outputs.data,1)
-        total += labels.size(0)
-        correct += (predicted == labels).sum().item()
+        totalTest += labels.size(0)
+        correctTest += (predicted == labels).sum().item()
+
+TestAccuracy = correctTest/totalTest
 
