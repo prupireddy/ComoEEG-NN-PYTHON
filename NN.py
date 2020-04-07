@@ -79,9 +79,9 @@ class ConvNet(nn.Module):
             nn.BatchNorm2d(16, eps = 1e-05),
             nn.MaxPool2d(kernel_size = 3, stride = 2))
         self.classifier = nn.Sequential(
-            nn.Dropout(p=0.2),
+            nn.Dropout(p=0.5),
             nn.Linear(61*2*16, 70),#Formula for calculating post-layer shape: floor((input+2*padding-kernelsize)/stride length +1)
-            nn.Dropout(p=0.2),
+            nn.Dropout(p=0.5),
             nn.Linear(70,2))
     def forward(self,x):
         out = self.layer1(x)
@@ -91,7 +91,7 @@ class ConvNet(nn.Module):
         out = self.classifier(out)
         return out
 
-num_epochs = 100
+num_epochs = 300
 num_classes = 2
 learning_rate = .001
 
@@ -99,7 +99,7 @@ model = ConvNet()
 model = model.float()
 
 criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr = learning_rate)
+optimizer = torch.optim.Adam(model.parameters(), lr = learning_rate, weight_decay = 1e-2)
 
 model.train()
 total_step = len(TrainData)
