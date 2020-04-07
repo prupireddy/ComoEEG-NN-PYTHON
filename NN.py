@@ -67,23 +67,26 @@ class ConvNet(nn.Module):
     def __init__(self):
         super(ConvNet,self).__init__()
         self.layer1 = nn.Sequential(
-            nn.Conv2d(n_chan,8,kernel_size = 3, stride = 1, padding = 'same'),
+            nn.MaxPool2d(kernel_size = 1,stride = 1))
+        self.layer2 = nn.Sequential(
+            nn.Conv2d(n_chan,8,kernel_size = 3, stride = 1, padding = (1,1)),
             nn.ReLU(),
             nn.BatchNorm2d(8, eps = 1e-05),
             nn.MaxPool2d(kernel_size = 2, stride = 2))
-        self.layer1 = nn.Sequential(
+        self.layer3 = nn.Sequential(
             nn.Conv2d(8,16,kernel_size = 5, stride = 1),
             nn.ReLU(),
-            nn.BatchNorm2d(8, eps = 1e-05),
-            nn.MaxPool2d(kernel_size = 2, stride = 2))
+            nn.BatchNorm2d(16, eps = 1e-05),
+            nn.MaxPool2d(kernel_size = 3, stride = 2))
         self.classifier = nn.Sequential(
             nn.Dropout(p=0.2),
-            nn.Linear(61*1*16, 50),#Formula for calculating post-layer shape: ceil((input+2*padding-kernelsize)/stride length)
+            nn.Linear(61*2*16, 70),#Formula for calculating post-layer shape: floor((input+2*padding-kernelsize)/stride length +1)
             nn.Dropout(p=0.2),
-            nn.Linear(50,2))
+            nn.Linear(70,2))
     def forward(self,x):
         out = self.layer1(x)
         out = self.layer2(out)
+        out = self.layer3(out)
         out = out.reshape(out.size(0),-1)
         out = self.classifier(out)
         return out
@@ -93,6 +96,7 @@ num_classes = 2
 learning_rate = .001
 
 model = ConvNet()
+model = model.float()
 
 criterion = nn.CrossEntropyLoss()
 optimizer = torch.optim.Adam(model.parameters(), lr = learning_rate)
@@ -102,7 +106,7 @@ total_step = len(TrainData)
 acc_list = []
 for epoch in range(num_epochs):
     for i, (images,labels) in enumerate(TrainData):
-        outputs = model(images)
+        outputs = model(images.float())
         loss = criterion(outputs,labels)
         optimizer.zero_grad()
         loss.backward()
@@ -117,8 +121,8 @@ with torch.no_grad():
     correctTest = 0
     totalTest = 0
     for images,labels in TestData:
-        outputs = model(images)
-        _,predicted = max(outputs.data,1)
+        outputs = model(images.float())
+        _,predicted = torch.max(outputs.data,1)
         totalTest += labels.size(0)
         correctTest += (predicted == labels).sum().item()
 
