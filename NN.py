@@ -91,7 +91,7 @@ class ConvNet(nn.Module):
         out = self.classifier(out)
         return out
 
-num_epochs = 10
+num_epochs = 50
 num_classes = 2
 learning_rate = .001
 
