@@ -30,11 +30,10 @@ storage = "D:\ComoEEG\Tyler Data\Patient " + patientNumber
 trans = transforms.ToTensor()
 Data = datasets.ImageFolder(root = storage, loader = my_tiff_loader,transform = trans)
 
-train_split = 0.75
+train_split = 0.5
 dataset_size = len(Data)
 indices = list(range(dataset_size))
 split = int(np.floor(train_split*dataset_size))
-size = dataset_size - split 
 np.random.shuffle(indices)
 train_indices, valid_indices = indices[:split], indices[split:]
 
@@ -58,6 +57,7 @@ NormalizedData = datasets.ImageFolder(root = storage, loader = my_tiff_loader, t
 
 train_sampler = SubsetRandomSampler(train_indices)
 valid_sampler = SubsetRandomSampler(valid_indices)
+size = 16
 TrainData = DataLoader(NormalizedData, batch_size = size, sampler = train_sampler)
 TestData = DataLoader(NormalizedData, batch_size = size, sampler = valid_sampler)
 # for idx, (x,y) in enumerate(TrainData):
@@ -91,7 +91,7 @@ class ConvNet(nn.Module):
         out = self.classifier(out)
         return out
 
-num_epochs = 300
+num_epochs = 10
 num_classes = 2
 learning_rate = .001
 
@@ -99,7 +99,7 @@ model = ConvNet()
 model = model.float()
 
 criterion = nn.CrossEntropyLoss()
-optimizer = torch.optim.Adam(model.parameters(), lr = learning_rate, weight_decay = 1e-2)
+optimizer = torch.optim.Adam(model.parameters(), lr = learning_rate, weight_decay = 1e-3)
 
 model.train()
 total_step = len(TrainData)
@@ -126,5 +126,5 @@ with torch.no_grad():
         totalTest += labels.size(0)
         correctTest += (predicted == labels).sum().item()
 
-TestAccuracy = correctTest/totalTest
+print(correctTest/totalTest)
 
