@@ -19,7 +19,7 @@ def my_tiff_loader(filename):
         final[:,:,i] = original[i,:,:]
     return final
 
-patientNumber = 4
+patientNumber = 10
 patientNumber = str(patientNumber)
 storage = "D:\ComoEEG\Tyler Data\Patient " + patientNumber 
 # #Single Data Point Testing:
@@ -127,4 +127,7 @@ with torch.no_grad():
         correctTest += (predicted == labels).sum().item()
 
 print(correctTest/totalTest)
+
+#from torchsummary import summary
+#summary(model,input_size = (22,257,18))
 
