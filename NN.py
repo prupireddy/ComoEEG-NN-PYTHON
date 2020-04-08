@@ -19,7 +19,7 @@ def my_tiff_loader(filename):
         final[:,:,i] = original[i,:,:]
     return final
 
-patientNumber = 10
+patientNumber = 4
 patientNumber = str(patientNumber)
 storage = "D:\ComoEEG\Tyler Data\Patient " + patientNumber 
 # #Single Data Point Testing:
