@@ -45,7 +45,7 @@ def my_tiff_loader(filename):
 
 #User-Controlled Parameters
 n_chan = 22
-patientNumber = 7
+patientNumber = 5
 
 
 patientNumber = str(patientNumber)
