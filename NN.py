@@ -45,7 +45,8 @@ def my_tiff_loader(filename):
 
 #User-Controlled Parameters
 n_chan = 22
-patientNumber = 10
+patientNumber = 7
+
 
 patientNumber = str(patientNumber)
 storage = "D:\ComoEEG\Tyler Data\Patient " + patientNumber #directory of input folders
@@ -116,9 +117,9 @@ class ConvNet(nn.Module):
             nn.MaxPool2d(kernel_size = 3, stride = 2))
         self.classifier = nn.Sequential(
             nn.Dropout(p=0.5), #Dropout regularization
-            nn.Linear(61*2*16, 70),#Formula for calculating post-layer shape: floor((input+2*padding-kernelsize)/stride length +1)
-            nn.Dropout(p=0.5),
-            nn.Linear(70,2))
+            # nn.Linear(13440,2) - This is for 87.5% overlap
+            nn.Linear(1792, 2))
+
     def forward(self,x):
         out = self.layer1(x)
         out = self.layer2(out)
