@@ -41,6 +41,7 @@ def my_tiff_loader(filename):
     final = np.zeros((H,W,C))
     for i in range(C):
         final[:,:,i] = original[i,:,:]
+    print(final.dtype)
     return final
 
 #User-Controlled Parameters
