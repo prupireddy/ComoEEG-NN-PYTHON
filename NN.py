@@ -6,48 +6,50 @@
 
 
 
-import tifffile
 import torch
 import torch.nn as nn
 # import os
 import numpy as np
-from torchvision import datasets
 from torchvision import transforms
 from torch.utils.data.sampler import SubsetRandomSampler
 from torch.utils.data import Dataset,DataLoader 
 #import matplotlib.pyplot as plt
 
+#User-Controlled Parameters
+n_chan = 22
+patientNumber = 10
+patientNumber = str(patientNumber)
+
 class NewImageLoader(Dataset):
     def __init__(self,root_dir,transform):
         self.root_dir = root_dir
         self.transform = transform
-        self.state = np.fromfile
+        self.StateStr = root_dir + "\state.bin" 
+        self.state = np.fromfile(self.StateStr, dtype = 'float64')
+        self.baseStr = root_dir + "\P" + patientNumber + "_" 
+        self.exampleStr = self.baseStr + str(0) + "_" + str(0) + ".bin"
+        self.H, self.W = (np.fromfile(self.exampleStr, dtype = 'float64')).shape
     def __getitem__(self,idx):
+        Final = np.zeros((self.H,self.W,n_chan))
+        obvStr = self.baseStr + str(idx) + "_"
+        for i in range(n_chan):
+            chanStr = obvStr + str(i) + ".bin"
+            Final[:,:,i] = np.fromfile(chanStr, dtype = 'float64')
+        target = self.state[idx]
         
-
-#Loader for TIFF files
-def my_tiff_loader(filename):
-    original = tifffile.imread(filename)
-    C,H,W = original.shape
-    final = np.zeros((H,W,C))
-    for i in range(C):
-        final[:,:,i] = original[i,:,:]
-    return final
-
-#User-Controlled Parameters
-n_chan = 22
-patientNumber = 6
-
-
-patientNumber = str(patientNumber)
-storage = "D:\ComoEEG\Tyler Data\Patient " + patientNumber #directory of input folders
+        if self.transform:
+            Final = self.transform(Final)
+        
+        return Final, target
+            
+storage = "D:\ComoEEG\Tyler Data\Patient " + patientNumber + "\spectrograms" #directory of input folders
 # #Single Data Point Testing:
 # storage = "D:\ComoEEG\Tyler Data\Patient 10\ictal"
 # os.chdir(storage)
 # storage = storage + "\P10_1.TIFF"
 # data = my_tiff_loader(storage)
 trans = transforms.ToTensor()
-Data = datasets.ImageFolder(root = storage, loader = my_tiff_loader,transform = trans) #Searches the directory and loads in the images from the folders
+Data = NewImageLoader(root = storage,transform = trans) #Searches the directory and loads in the images from the folders
 
 #Create Train and Validate Indices for out-of-sample testing
 train_split = 0.5
@@ -76,7 +78,7 @@ pop_std = np.mean(std_matrix, axis = 1)
 #New transformation with normalization
 transNorm = transforms.Compose([transforms.ToTensor(),
                                 transforms.Normalize(mean = pop_mean, std = pop_std)])
-NormalizedData = datasets.ImageFolder(root = storage, loader = my_tiff_loader, transform = transNorm)
+NormalizedData = NewImageLoader(root = storage, transform = transNorm)
 #This goes with the custom class defined above - 
 # for inputs,labels,paths in NormalizedData:
 #     print(paths)
