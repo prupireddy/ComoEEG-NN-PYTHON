@@ -24,9 +24,9 @@ class NewImageLoader(Dataset):
     def __init__(self,root_dir,transform):
         self.root_dir = root_dir
         self.transform = transform
-        self.StateStr = root_dir + "\state.bin" 
-        self.state = np.fromfile(self.StateStr, dtype = 'float64')
         self.baseStr = root_dir + "\P" + patientNumber + "_" 
+        self.StateStr = self.baseStr + "state.bin" 
+        self.state = np.fromfile(self.StateStr, dtype = 'float64')
         self.exampleStr = self.baseStr + str(0) + "_" + str(0) + ".bin"
         self.H, self.W = (np.fromfile(self.exampleStr, dtype = 'float64')).shape
     def __getitem__(self,idx):
