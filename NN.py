@@ -14,25 +14,15 @@ import numpy as np
 from torchvision import datasets
 from torchvision import transforms
 from torch.utils.data.sampler import SubsetRandomSampler
-from torch.utils.data import DataLoader 
+from torch.utils.data import Dataset,DataLoader 
 #import matplotlib.pyplot as plt
 
-##Custom Image I/O that returns paths but is not compatible with the rest
-##of the program -
-# class ImageFolderWithPaths(datasets.ImageFolder):
-#     """Custom dataset that includes image file paths. Extends
-#     torchvision.datasets.ImageFolder
-#     """
-#     # override the __getitem__ method. this is the method that dataloader calls
-#     def __getitem__(self, index):
-#         # this is what ImageFolder normally returns 
-#         original_tuple = super(ImageFolderWithPaths, self).__getitem__(index)
-#         # the image file path
-#         path = self.imgs[index][0]
-#         # make a new tuple that includes original and the path
-#         tuple_with_path = (original_tuple + (path,))
-#         return tuple_with_path
-
+class NewImageLoader(Dataset):
+    def __init__(self,root_dir,transform):
+        self.root_dir = root_dir
+        self.transform = transform
+    def __getitem__(self,idx):
+        
 
 #Loader for TIFF files
 def my_tiff_loader(filename):
