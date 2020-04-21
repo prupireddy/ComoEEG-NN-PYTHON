@@ -21,6 +21,7 @@ class NewImageLoader(Dataset):
     def __init__(self,root_dir,transform):
         self.root_dir = root_dir
         self.transform = transform
+        self.state = np.fromfile
     def __getitem__(self,idx):
         
 
