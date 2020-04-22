@@ -16,9 +16,16 @@ from torch.utils.data import Dataset,DataLoader
 #import matplotlib.pyplot as plt
 
 #User-Controlled Parameters
-n_chan = 22
 patientNumber = 10
 patientNumber = str(patientNumber)
+
+shapeStr = "D:\ComoEEG\Tyler Data\Patient " + patientNumber + "\spectrograms" + \
+"\P" + patientNumber + "_" + "shape.bin"
+shapeArray = (np.fromfile(shapeStr,'float')).astype(int)
+n_chan = shapeArray[0]
+H = shapeArray[1]
+W = shapeArray[2]
+
 
 class NewImageLoader(Dataset):
     def __init__(self,root_dir,transform):
@@ -26,15 +33,14 @@ class NewImageLoader(Dataset):
         self.transform = transform
         self.baseStr = root_dir + "\P" + patientNumber + "_" 
         self.StateStr = self.baseStr + "state.bin" 
-        self.state = np.fromfile(self.StateStr, dtype = 'float64')
-        self.exampleStr = self.baseStr + str(0) + "_" + str(0) + ".bin"
-        self.H, self.W = (np.fromfile(self.exampleStr, dtype = 'float64')).shape
+        self.state = (np.fromfile(self.StateStr, dtype = 'float')).astype(int)
     def __getitem__(self,idx):
-        Final = np.zeros((self.H,self.W,n_chan))
+        Final = np.zeros((H,W,n_chan))
         obvStr = self.baseStr + str(idx) + "_"
         for i in range(n_chan):
             chanStr = obvStr + str(i) + ".bin"
-            Final[:,:,i] = np.fromfile(chanStr, dtype = 'float64')
+            temp = np.fromfile(chanStr, dtype = 'float')
+            Final[:,:,i] = np.reshape(temp, (H,W), order = 'F')
         target = self.state[idx]
         
         if self.transform:
@@ -60,6 +66,8 @@ np.random.shuffle(indices)
 train_indices, valid_indices = indices[:split], indices[split:]
 
 #Calculation of the mean and standard deviation of each channel for image normalization
+#currently it needs the input to be post-ToTensor because it operates under the assumption 
+#that the data is structured in CxHxW
 mu_matrix = np.zeros((n_chan, len(train_indices))) #population storage for statistics on each image
 std_matrix = np.zeros((n_chan, len(train_indices))) # ""
 counter = 0
