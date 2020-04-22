@@ -33,7 +33,9 @@ class NewImageLoader(Dataset):
         self.transform = transform
         self.baseStr = root + "\P" + patientNumber + "_" 
         self.StateStr = self.baseStr + "state.bin" 
-        self.state = (np.fromfile(self.StateStr, dtype = 'float')).astype(int)
+        self.state = np.fromfile(self.StateStr, dtype = 'float')
+        self.state = torch.from_numpy(self.state)
+        self.state = self.state.long()
         
     def __len__(self):
         return len(self.state)
@@ -46,7 +48,6 @@ class NewImageLoader(Dataset):
             temp = np.fromfile(chanStr, dtype = 'float')
             Final[:,:,i] = np.reshape(temp, (H,W), order = 'F')
         target = self.state[idx]
-        
         if self.transform:
             Final = self.transform(Final)
         
