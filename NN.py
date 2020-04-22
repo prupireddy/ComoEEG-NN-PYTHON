@@ -28,12 +28,16 @@ W = shapeArray[2]
 
 
 class NewImageLoader(Dataset):
-    def __init__(self,root_dir,transform):
-        self.root_dir = root_dir
+    def __init__(self,root,transform):
+        self.root = root
         self.transform = transform
-        self.baseStr = root_dir + "\P" + patientNumber + "_" 
+        self.baseStr = root + "\P" + patientNumber + "_" 
         self.StateStr = self.baseStr + "state.bin" 
         self.state = (np.fromfile(self.StateStr, dtype = 'float')).astype(int)
+        
+    def __len__(self):
+        return len(self.state)
+    
     def __getitem__(self,idx):
         Final = np.zeros((H,W,n_chan))
         obvStr = self.baseStr + str(idx) + "_"
@@ -96,9 +100,9 @@ valid_sampler = SubsetRandomSampler(valid_indices)
 size = 16
 TrainData = DataLoader(NormalizedData, batch_size = size, sampler = train_sampler)
 TestData = DataLoader(NormalizedData, batch_size = size, sampler = valid_sampler)
-#Used for extracting data from the post-batch:
-# for idx, (x,y) in enumerate(TrainData):
-#     print(x.shape)
+# #Used for extracting data from the post-batch:
+# # for idx, (x,y) in enumerate(TrainData):
+# #     print(x.shape)
 
 #Defining Model architecture
 class ConvNet(nn.Module):
