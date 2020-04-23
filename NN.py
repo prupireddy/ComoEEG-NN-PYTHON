@@ -1,4 +1,7 @@
-# This program loads in spectrogram images. Seperates train and test data.
+# This program loads in spectrogram images using a custom 
+#loader that assumes that the data is binary, columnized and in the format
+#of P(Patient Number)_(observation number)_(channel number) and also has the 
+#shape and state arrays in the same folder. Seperates train and test data.
 # Calculates the mean and standard deviations of all training images 
 # across all of the channels. Then puts it into a Convolutional Neural Network. 
 # Results are postprocessed for accuracy (in the training as well as the testing sets)
@@ -19,6 +22,7 @@ from torch.utils.data import Dataset,DataLoader
 patientNumber = 4
 patientNumber = str(patientNumber)
 
+#Load shape array for reshaping the columnized spectral density data
 shapeStr = "D:\ComoEEG\Tyler Data\Patient " + patientNumber + "\spectrograms" + \
 "\P" + patientNumber + "_" + "shape.bin"
 shapeArray = (np.fromfile(shapeStr,'float')).astype(int)
@@ -32,6 +36,7 @@ class NewImageLoader(Dataset):
         self.root = root
         self.transform = transform
         self.baseStr = root + "\P" + patientNumber + "_" 
+        #Loading state array
         self.StateStr = self.baseStr + "state.bin" 
         self.state = np.fromfile(self.StateStr, dtype = 'float')
         self.state = torch.from_numpy(self.state)
@@ -46,7 +51,7 @@ class NewImageLoader(Dataset):
         for i in range(n_chan):
             chanStr = obvStr + str(i) + ".bin"
             temp = np.fromfile(chanStr, dtype = 'float')
-            Final[:,:,i] = np.reshape(temp, (H,W), order = 'F')
+            Final[:,:,i] = np.reshape(temp, (H,W), order = 'F')#Reshape
         target = self.state[idx]
         if self.transform:
             Final = self.transform(Final)
