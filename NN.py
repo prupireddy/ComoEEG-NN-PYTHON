@@ -135,7 +135,7 @@ class ConvNet(nn.Module):
         return out
 
 #Hyperparams
-num_epochs = 50
+num_epochs = 5
 num_classes = 2
 learning_rate = .001
 
