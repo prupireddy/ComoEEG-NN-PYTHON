@@ -16,7 +16,7 @@ from torch.utils.data import Dataset,DataLoader
 #import matplotlib.pyplot as plt
 
 #User-Controlled Parameters
-patientNumber = 10
+patientNumber = 4
 patientNumber = str(patientNumber)
 
 shapeStr = "D:\ComoEEG\Tyler Data\Patient " + patientNumber + "\spectrograms" + \
