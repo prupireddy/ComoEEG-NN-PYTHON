@@ -19,7 +19,7 @@ from torch.utils.data import Dataset,DataLoader
 #import matplotlib.pyplot as plt
 
 #User-Controlled Parameters
-patientNumber = 4
+patientNumber = 10
 patientNumber = str(patientNumber)
 
 #Load shape array for reshaping the columnized spectral density data
