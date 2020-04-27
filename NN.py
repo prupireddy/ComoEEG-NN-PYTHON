@@ -45,7 +45,7 @@ def my_tiff_loader(filename):
 
 #User-Controlled Parameters
 n_chan = 22
-patientNumber = 10
+patientNumber = 4
 
 patientNumber = str(patientNumber)
 storage = "D:\ComoEEG\Tyler Data\Patient " + patientNumber #directory of input folders
