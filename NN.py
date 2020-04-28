@@ -129,8 +129,7 @@ class ConvNet(nn.Module):
         self.classifier = nn.Sequential(
             nn.Dropout(p=0.5), #Dropout regularization
             # nn.Linear(13440,2) - This is for 87.5% overlap
-            nn.Linear(1952, 70),
-            nn.Linear(70,2))
+            nn.Linear(1952,2))
 
     def forward(self,x):
         out = self.layer1(x)
