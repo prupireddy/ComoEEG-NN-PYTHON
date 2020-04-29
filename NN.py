@@ -19,7 +19,7 @@ import random
 
 #User-Controlled Parameters
 n_chan = 22
-patientNumber = 4
+patientNumber = 10
 
 
 class MapDataset(Dataset):
