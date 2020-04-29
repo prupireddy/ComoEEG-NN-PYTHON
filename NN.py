@@ -1,6 +1,9 @@
 # This program loads in spectrogram images. Seperates train and test data.
 # Calculates the mean and standard deviations of all training images 
-# across all of the channels. Then puts it into a Convolutional Neural Network. 
+# across all of the channels. It then seperates the train and test data,
+#applying data augmentation (rolling the data forward - wrapping) on the fly to the 
+#train data (requires larger number of epochs to cover all augmentations).
+#Then puts it into a Convolutional Neural Network. 
 # Results are postprocessed for accuracy (in the training as well as the testing sets)
 # Test accuracy is outputted in the console. 
 
@@ -19,7 +22,8 @@ import random
 
 #User-Controlled Parameters
 n_chan = 22
-patientNumber = 10
+patientNumber = 6
+num_epochs = 50
 
 
 class MapDataset(Dataset):
@@ -35,28 +39,23 @@ class MapDataset(Dataset):
         self.map = map_fn
 
     def __getitem__(self, index):
-        return self.map(self.dataset[index][0]),self.dataset[index][1]
+        return self.map(self.dataset[index][0]),self.dataset[index][1] #The features (index 0) are mapped, but the targets (index 1) remain the same
 
     def __len__(self):
         return len(self.dataset)
 
 class Wrapper(object):
     
-    def __init__(self,ratio, probability):
-        self.r = ratio
-        self.p = probability
+    def __init__(self,MinWraps,MaxWraps):
+        self.min = MinWraps #Minimum shift amount
+        self.max = MaxWraps #Maximum shift amount
     
     def __call__(self,sample):
-        a = random.uniform(0,1)
-        if a <= self.p:
-            sample_np = sample.numpy()
-            C,H,W = sample_np.shape
-            shift = int(np.ceil(W*self.r))
-            wrapped_np = np.roll(sample_np, shift, axis = 2)
-            wrapped_torch = torch.from_numpy(wrapped_np)
-            return wrapped_torch
-        else:
-            return sample
+        sample_np = sample.numpy() #convert to numpy to be eligible for roll
+        shift = random.randint(self.min,self.max) #randomly generate roll amount - here you can see why you need more epochs, to cover all augmentation possibilites (in this case roll amount)
+        wrapped_np = np.roll(sample_np, shift, axis = 2) #roll along time
+        wrapped_torch = torch.from_numpy(wrapped_np) #go back into torch tensor 
+        return wrapped_torch
 
 #Loader for TIFF files
 def my_tiff_loader(filename):
@@ -109,9 +108,11 @@ NormalizedData = datasets.ImageFolder(root = storage, loader = my_tiff_loader, t
 # for inputs,labels,paths in NormalizedData:
 #     print(paths)
 
-tng_predataset = Subset(NormalizedData,train_indices)
+#It's necessary to seperate out the train from the test before batching because augmentation can only be applied to train
+tng_predataset = Subset(NormalizedData,train_indices) 
 valid_dataset = Subset(NormalizedData,valid_indices)
-DataAugmentation = Wrapper(.05,.5)
+#Apply augmentation
+DataAugmentation = Wrapper(0,1)
 tng_dataset = MapDataset(tng_predataset,DataAugmentation)
 
 size = 16
@@ -151,7 +152,6 @@ class ConvNet(nn.Module):
         return out
 
 #Hyperparams
-num_epochs = 50
 num_classes = 2
 learning_rate = .001
 
