@@ -40,7 +40,7 @@ class MapDataset(Dataset):
     def __len__(self):
         return len(self.dataset)
 
-class Wrapping(object):
+class Wrapper(object):
     
     def __init__(self,ratio, probability):
         self.r = ratio
@@ -51,9 +51,10 @@ class Wrapping(object):
         if a <= self.p:
             sample_np = sample.numpy()
             C,H,W = sample_np.shape
-            shift = np.ceil(W*self.r)
-            wrapped = np.roll(sample_np, shift, axis = 2)
-            return wrapped
+            shift = int(np.ceil(W*self.r))
+            wrapped_np = np.roll(sample_np, shift, axis = 2)
+            wrapped_torch = torch.from_numpy(wrapped_np)
+            return wrapped_torch
         else:
             return sample
 
@@ -108,10 +109,10 @@ NormalizedData = datasets.ImageFolder(root = storage, loader = my_tiff_loader, t
 # for inputs,labels,paths in NormalizedData:
 #     print(paths)
 
-tng_dataset = Subset(NormalizedData,train_indices)
+tng_predataset = Subset(NormalizedData,train_indices)
 valid_dataset = Subset(NormalizedData,valid_indices)
 DataAugmentation = Wrapper(.05,.5)
-tng_dataset = MapDataset(tng_dataset,DataAugmentation)
+tng_dataset = MapDataset(tng_predataset,DataAugmentation)
 
 size = 16
 TrainData = DataLoader(tng_dataset, batch_size = size)
@@ -120,7 +121,7 @@ TestData = DataLoader(valid_dataset, batch_size = size)
 # for idx, (x,y) in enumerate(TrainData):
 #     print(x.shape)
 
-#Defining Model architecture
+# Defining Model architecture
 class ConvNet(nn.Module):
     def __init__(self):
         super(ConvNet,self).__init__()
