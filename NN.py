@@ -13,26 +13,49 @@ import torch.nn as nn
 import numpy as np
 from torchvision import datasets
 from torchvision import transforms
-from torch.utils.data.sampler import SubsetRandomSampler
-from torch.utils.data import DataLoader 
+from torch.utils.data import DataLoader, Subset, Dataset
 #import matplotlib.pyplot as plt
+import random
 
-##Custom Image I/O that returns paths but is not compatible with the rest
-##of the program -
-# class ImageFolderWithPaths(datasets.ImageFolder):
-#     """Custom dataset that includes image file paths. Extends
-#     torchvision.datasets.ImageFolder
-#     """
-#     # override the __getitem__ method. this is the method that dataloader calls
-#     def __getitem__(self, index):
-#         # this is what ImageFolder normally returns 
-#         original_tuple = super(ImageFolderWithPaths, self).__getitem__(index)
-#         # the image file path
-#         path = self.imgs[index][0]
-#         # make a new tuple that includes original and the path
-#         tuple_with_path = (original_tuple + (path,))
-#         return tuple_with_path
+#User-Controlled Parameters
+n_chan = 22
+patientNumber = 4
 
+
+class MapDataset(Dataset):
+    """
+    Given a dataset, creates a dataset which applies a mapping function
+    to its items (lazily, only when an item is called).
+
+    Note that data is not cloned/copied from the initial dataset.
+    """
+
+    def __init__(self, dataset, map_fn):
+        self.dataset = dataset
+        self.map = map_fn
+
+    def __getitem__(self, index):
+        return self.map(self.dataset[index][0]),self.dataset[index][1]
+
+    def __len__(self):
+        return len(self.dataset)
+
+class Wrapping(object):
+    
+    def __init__(self,ratio, probability):
+        self.r = ratio
+        self.p = probability
+    
+    def __call__(self,sample):
+        a = random.uniform(0,1)
+        if a <= self.p:
+            sample_np = sample.numpy()
+            C,H,W = sample_np.shape
+            shift = np.ceil(W*self.r)
+            wrapped = np.roll(sample_np, shift, axis = 2)
+            return wrapped
+        else:
+            return sample
 
 #Loader for TIFF files
 def my_tiff_loader(filename):
@@ -42,10 +65,6 @@ def my_tiff_loader(filename):
     for i in range(C):
         final[:,:,i] = original[i,:,:]
     return final
-
-#User-Controlled Parameters
-n_chan = 22
-patientNumber = 4
 
 patientNumber = str(patientNumber)
 storage = "D:\ComoEEG\Tyler Data\Patient " + patientNumber #directory of input folders
@@ -89,11 +108,14 @@ NormalizedData = datasets.ImageFolder(root = storage, loader = my_tiff_loader, t
 # for inputs,labels,paths in NormalizedData:
 #     print(paths)
 
-train_sampler = SubsetRandomSampler(train_indices) #sampler based on train indices
-valid_sampler = SubsetRandomSampler(valid_indices)
+tng_dataset = Subset(NormalizedData,train_indices)
+valid_dataset = Subset(NormalizedData,valid_indices)
+DataAugmentation = Wrapper(.05,.5)
+tng_dataset = MapDataset(tng_dataset,DataAugmentation)
+
 size = 16
-TrainData = DataLoader(NormalizedData, batch_size = size, sampler = train_sampler)
-TestData = DataLoader(NormalizedData, batch_size = size, sampler = valid_sampler)
+TrainData = DataLoader(tng_dataset, batch_size = size)
+TestData = DataLoader(valid_dataset, batch_size = size)
 #Used for extracting data from the post-batch:
 # for idx, (x,y) in enumerate(TrainData):
 #     print(x.shape)
