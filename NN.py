@@ -22,7 +22,7 @@ import random
 
 #User-Controlled Parameters
 n_chan = 22
-patientNumber = 6
+patientNumber = 10
 num_epochs = 50
 
 
