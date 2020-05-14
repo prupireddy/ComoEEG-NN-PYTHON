@@ -1,5 +1,5 @@
-Each program has its own readme in its metadata. This is branch stores the code for the neural network. Process oriented & Paper-style notes are stored in the report in CNN + Spectrograms. This branch
-belongs to CNN V3. 
+Each program has its own readme in its metadata. This is branch stores the code for the neural network.  This branch
+belongs to CNN V3, which works off of CNN_V2
 
 NN.py:
 Input - you just need a spectrogram directory with all spectrograms, the state array, the shape array in a 
