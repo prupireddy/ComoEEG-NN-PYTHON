@@ -8,3 +8,6 @@ P(insert patient number)_(state) & shape is P(insert patient number)_(shape).
 If you work through all of the code in CNN_V3 MATLAB. You should be able to accomplish this. 
 Output - None. The accuracy is outputted within the program. 
 You can also output the summary of the network if you desire - the code of which is stored at the bottom of the page.
+
+
+*The actual implemention should be pretty easy. Just change the patient number as you move to a different patient. 
