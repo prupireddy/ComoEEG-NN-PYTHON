@@ -1,5 +1,5 @@
-Each program has its own readme in its metadata. This is branch stores the code for the neural network. Process oriented & Paper-style notes are stored in the report in CNN + Spectrograms. This branch
-belongs to CNN V2. 
+Each program has its own readme in its metadata. This is branch stores the code for the neural network.  This branch
+belongs to CNN V2. It works off of CNN_V1, the master. 
 
 NN.py:
 Input - you just need a directory with all of the ictal spectrogram images (stored in a stacked TIFF format) in one folder, seperated from all of the interictal images stored in another folder. 
